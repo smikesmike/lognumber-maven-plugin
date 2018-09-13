@@ -14,14 +14,13 @@
 
     <name>maven-lognumber-plugin Maven Plugin</name>
 
-    <!-- FIXME change it to the project's website -->
-    <url>http://maven.apache.org</url>
+    <url>http://futureaspects.org</url>
 
     <scm>
-        <connection>scm:git:https://git.dev-central.eu/elem-net/elements.git</connection>
-        <developerConnection>scm:git:https://git.dev-central.eu/elem-net/elements.git</developerConnection>
-        <url>https://git.dev-central.eu/elem-net/elements.git</url>
-        <tag>elements-1.0.0</tag>
+        <connection>scm:git:https://git.dev-central.eu/fa/mojos/lognumber-maven-plugin</connection>
+        <developerConnection>scm:git:https://git.dev-central.eu/fa/mojos/lognumber-maven-plugin</developerConnection>
+        <url>https://git.dev-central.eu/fa/mojos/lognumber-maven-plugin</url>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
