@@ -53,7 +53,7 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
     /**
      * Regular expression for the possible logger names
      */
-    @Parameter(defaultValue = "log|logger|LOG|getLog\\(\\)", property = "loggerNamePattern", required = false)
+    @Parameter(defaultValue = "log|logger|s_logger|LOG|LOGGER|getLog\\(\\)", property = "loggerNamePattern", required = false)
     private String loggerNamePattern;
 
     /**
