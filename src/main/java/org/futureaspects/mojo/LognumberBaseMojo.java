@@ -9,6 +9,9 @@ package org.futureaspects.mojo;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -74,8 +77,15 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
         int highest = 0;
         int missing = 0;
         try {
-            lines = Files.lines(f.toPath());
-            String content = lines.reduce("", (a, b) -> a + "\n" + b);
+            String content = null;
+            try {
+                lines = Files.lines(f.toPath());
+                content = lines.reduce("", (a, b) -> a + "\n" + b);
+            } catch (MalformedInputException |UncheckedIOException mie) {
+                // -- try to decode the file with ISO encoding --
+                lines = Files.lines(f.toPath(), StandardCharsets.ISO_8859_1);
+                content = lines.reduce("", (a, b) -> a + "\n" + b);
+            } // read-try-catch
             Matcher m = getPattern().matcher(content);
             while (m.find()) {
                 String lognum = m.group("lognum");
@@ -86,17 +96,19 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
                     int n = Integer.parseInt(lognum);
                     highest = Math.max(highest, n);
                 }
-            }
+            } // while
             getLog().debug("highest:" + highest + " missing:" + missing);
 
             lines.close();
         } catch (IOException e) {
-            getLog().error("IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(), e);
+            getLog().error(
+                    "IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(),
+                    e);
             // throw new MojoExecutionException("IOException due processing
             // baseDir '" + baseDirectory + "':" + e.getMessage(), e);
         } finally {
 
-        }
+        } // try-catch-finally
         return highest;
     }
 
@@ -108,7 +120,8 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
      * @param dryRun
      * @return the highest lognumber or 0 if no were found
      */
-    protected void assignLognumbers(ComputingContext ctx, File f, boolean dryRun, boolean backupFiles) {
+    protected void assignLognumbers(ComputingContext ctx, File f, boolean dryRun,
+            boolean backupFiles) {
         getLog().debug("modifying '" + f.getAbsolutePath() + "' ...");
         Stream<String> lines;
         int highest = 0;
@@ -144,17 +157,20 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
                     getLog().info("dry run modification of '" + f.getAbsolutePath() + "'");
                 } else {
                     if (backupFiles) {
-                        Files.move(f.toPath(), new File(f.getAbsolutePath() + backupExtension).toPath(),
+                        Files.move(f.toPath(),
+                                new File(f.getAbsolutePath() + backupExtension).toPath(),
                                 StandardCopyOption.REPLACE_EXISTING);
                     }
-                    Files.write(f.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING,
-                            StandardOpenOption.CREATE);
+                    Files.write(f.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8),
+                            StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
 
                 }
             }
 
         } catch (IOException e) {
-            getLog().error("IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(), e);
+            getLog().error(
+                    "IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(),
+                    e);
             // throw new MojoExecutionException("IOException due processing
             // baseDir '" + baseDirectory + "':" + e.getMessage(), e);
         } finally {
@@ -169,7 +185,8 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
      */
     Pattern getPattern() {
         return Pattern.compile(
-                "(?<prefix>(?:" + loggerNamePattern + ")\\s*\\.(" + logLevelPattern + ")\\s*\\(\\s*\\\")((?<lognum>\\d+)\\;)?",
+                "(?<prefix>(?:" + loggerNamePattern + ")\\s*\\.(" + logLevelPattern
+                        + ")\\s*\\(\\s*\\\")((?<lognum>\\d+)\\;)?",
                 Pattern.MULTILINE | Pattern.DOTALL);
     }
 }
