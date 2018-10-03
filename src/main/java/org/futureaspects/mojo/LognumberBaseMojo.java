@@ -10,7 +10,6 @@ package org.futureaspects.mojo;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -73,20 +72,10 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
      */
     protected int seekHighestNumber(File f) {
         getLog().debug("scanning '" + f.getAbsolutePath() + "' ...");
-        Stream<String> lines;
         int highest = 0;
         int missing = 0;
         try {
-            String content = null;
-            try {
-                lines = Files.lines(f.toPath());
-                content = lines.reduce("", (a, b) -> a + "\n" + b);
-            } catch (MalformedInputException |UncheckedIOException mie) {
-                // -- try to decode the file with ISO encoding --
-                lines = Files.lines(f.toPath(), StandardCharsets.ISO_8859_1);
-                content = lines.reduce("", (a, b) -> a + "\n" + b);
-            } // read-try-catch
-            Matcher m = getPattern().matcher(content);
+            Matcher m = getPattern().matcher(readTextContent(f));
             while (m.find()) {
                 String lognum = m.group("lognum");
                 // getLog().info("lognum=" + lognum);
@@ -98,8 +87,6 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
                 }
             } // while
             getLog().debug("highest:" + highest + " missing:" + missing);
-
-            lines.close();
         } catch (IOException e) {
             getLog().error(
                     "IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(),
@@ -113,6 +100,42 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
     }
 
     /**
+     * Reads a complete file into a single string
+     * 
+     * @param f
+     * @return a non <code>null</code> string
+     * @throws IOException
+     */
+    protected String readTextContent(File f) throws IOException {
+        String content = null;
+        Stream<String> lines = null;
+        try {
+            lines = Files.lines(f.toPath());
+            content = lines.reduce("", (a, b) -> a + "\n" + b);
+
+        } catch (MalformedInputException | UncheckedIOException mie) {
+            // -- try to decode the file with ISO encoding --
+            if (lines != null) {
+                lines.close();
+            }
+            try {
+                lines = Files.lines(f.toPath(), StandardCharsets.ISO_8859_1);
+                content = lines.reduce("", (a, b) -> a + "\n" + b);
+            } finally {
+                if (lines != null) {
+                    lines.close();
+                }
+            } // read-try-catch
+
+        } finally {
+            if (lines != null) {
+                lines.close();
+            }
+        } // read-try-catch
+        return content;
+    }
+
+    /**
      * Searches for the highest lognumber
      * 
      * @param f
@@ -123,15 +146,10 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
     protected void assignLognumbers(ComputingContext ctx, File f, boolean dryRun,
             boolean backupFiles) {
         getLog().debug("modifying '" + f.getAbsolutePath() + "' ...");
-        Stream<String> lines;
         int highest = 0;
         boolean modified = false;
         try {
-            lines = Files.lines(f.toPath());
-            String content = lines.reduce("", (a, b) -> a + "\n" + b);
-            lines.close();
-
-            Matcher m = getPattern().matcher(content);
+            Matcher m = getPattern().matcher(readTextContent(f));
             StringBuffer sb = new StringBuffer();
 
             while (m.find()) {
