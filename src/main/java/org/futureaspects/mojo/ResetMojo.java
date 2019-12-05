@@ -40,7 +40,6 @@ public class ResetMojo extends DetectMojo {
         // -- search for the highest lognumber --
         super.execute();
 
-        getLog().info("resetting existing lognumbers to \"0\"...");
         ComputingContext ctx = new ComputingContext();
         ctx.highestNumber = highestLognumber;
         for (File f : listFiles) {

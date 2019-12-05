@@ -18,8 +18,8 @@ import org.apache.maven.plugins.annotations.Parameter;
  * Reassign all logging statements to be based on a new number set.
  *
  */
-@Mojo(name = "reassign", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresProject = false)
-public class ReassignMojo extends DetectMojo {
+@Mojo(name = "rebase", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresProject = false)
+public class RebaseMojo extends DetectMojo {
 
     /**
      * The new starting number for the lognumbers after resetting to "0"
@@ -41,19 +41,18 @@ public class ReassignMojo extends DetectMojo {
 
     public void execute() throws MojoExecutionException {
 
-        getLog().info("Reassign lognumbers to \"" + newBaseNumber + "\"...");
+        getLog().info("Rebase lognumbers to \"" + newBaseNumber + "\"...");
 
         // -- search for the highest lognumber --
         super.execute();
 
-        getLog().info("resetting existing lognumbers to \"0\"...");
         ComputingContext ctx = new ComputingContext();
         ctx.highestNumber = newBaseNumber;
         for (File f : listFiles) {
             resetLognumbers(ctx, f, dryRun, backupFiles);
             assignLognumbers(ctx, f, dryRun, backupFiles);
         }
-        getLog().info("Reassigned [" + ctx.correctedStatements + "] lognumbers in " + ctx.touchedFiles.size()
+        getLog().info("Rebased [" + ctx.correctedStatements + "] lognumbers in " + ctx.touchedFiles.size()
                 + " file(s). Highest lognumber is now [" + ctx.highestNumber + "]");
     }
 }
