@@ -52,7 +52,7 @@ public class RebaseMojo extends DetectMojo {
             resetLognumbers(ctx, f, dryRun, backupFiles);
             assignLognumbers(ctx, f, dryRun, backupFiles);
         }
-        getLog().info("Rebased [" + ctx.correctedStatements + "] lognumbers in " + ctx.touchedFiles.size()
+        getLog().info("Rebased [" + ctx.correctedStatements/2 + "] lognumbers in " + ctx.touchedFiles.size()/2
                 + " file(s). Highest lognumber is now [" + ctx.highestNumber + "]");
     }
 }
