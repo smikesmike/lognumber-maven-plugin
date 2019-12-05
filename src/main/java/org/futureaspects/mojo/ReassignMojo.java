@@ -18,7 +18,7 @@ import org.apache.maven.plugins.annotations.Parameter;
  * Reassign all logging statements to be based on a new number set.
  *
  */
-@Mojo(name = "reset", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresProject = false)
+@Mojo(name = "reassign", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresProject = false)
 public class ReassignMojo extends DetectMojo {
 
     /**
