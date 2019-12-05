@@ -155,9 +155,9 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
             while (m.find()) {
                 String lognum = m.group("lognum");
                 String prefix = m.group("prefix");
-                String repString = prefix + (++ctx.highestNumber) + ";";
                 // getLog().info("lognum=" + lognum);
                 if (lognum == null || lognum.equals("0")) {
+                    String repString = prefix + (++ctx.highestNumber) + ";";
                     m.appendReplacement(sb, repString);
                     modified = true;
                     ctx.correctedStatements++;
@@ -196,6 +196,60 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * Searches for the highest lognumber
+     * 
+     * @param f
+     * @param backupFiles
+     * @param dryRun
+     * @return the highest lognumber or 0 if no were found
+     */
+    protected void resetLognumbers(ComputingContext ctx, File f, boolean dryRun,
+            boolean backupFiles) {
+        getLog().debug("resetting '" + f.getAbsolutePath() + "' ...");
+        boolean modified = false;
+        try {
+            Matcher m = getPattern().matcher(readTextContent(f));
+            StringBuffer sb = new StringBuffer();
+
+            while (m.find()) {
+                String lognum = m.group("lognum");
+                String prefix = m.group("prefix");
+                // getLog().info("lognum=" + lognum);
+                String repString = prefix + "0;";
+                m.appendReplacement(sb, repString);
+                modified = true;
+                ctx.correctedStatements++;
+            } // while more lognumbers available
+            m.appendTail(sb);
+
+            if (modified) {
+                getLog().debug("resetting lognumbers in: " + f.getAbsolutePath());
+                ctx.touchedFiles.add(f);
+                if (dryRun) {
+                    getLog().info("dry run modification of '" + f.getAbsolutePath() + "'");
+                } else {
+                    if (backupFiles) {
+                        Files.move(f.toPath(),
+                                new File(f.getAbsolutePath() + backupExtension).toPath(),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    Files.write(f.toPath(), sb.toString().getBytes(StandardCharsets.UTF_8),
+                            StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+
+                }
+            }
+
+        } catch (IOException e) {
+            getLog().error(
+                    "IOException due processing baseDir '" + baseDirectory + "':" + e.getMessage(),
+                    e);
+            // throw new MojoExecutionException("IOException due processing
+            // baseDir '" + baseDirectory + "':" + e.getMessage(), e);
+        } finally {
+
+        }
+    }
     /**
      * Creates a new reg ex pattern
      * 
