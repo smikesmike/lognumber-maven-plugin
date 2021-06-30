@@ -112,6 +112,9 @@ public abstract class LognumberBaseMojo extends AbstractMojo {
         try {
             lines = Files.lines(f.toPath());
             content = lines.reduce("", (a, b) -> a + "\n" + b);
+            if (content.startsWith("\n")) {                
+                content = content.substring("\n".length());
+            }
 
         } catch (MalformedInputException | UncheckedIOException mie) {
             // -- try to decode the file with ISO encoding --
