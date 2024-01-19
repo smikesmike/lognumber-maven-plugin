@@ -1,3 +1,5 @@
+# Lognumber Maven Plugin
+
 This is the Lognumber Maven Plugin, a tool designed to assist developers in managing and manipulating log numbers in their Java projects.
 
 ## Prerequisites
