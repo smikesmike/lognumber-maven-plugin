@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.futureaspects.mojo.it</groupId>
+        <artifactId>multi-module</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>module-c</artifactId>
+
+    <properties>
+        <log-assign.range>2_000,3_000</log-assign.range>
+    </properties>
+</project>
